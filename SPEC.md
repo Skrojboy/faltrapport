@@ -7,7 +7,7 @@ A. webbappen i den här mappen, B. inläsningen i Winnas Automations Robot (`tex
 ```json
 {
   "format": "winna-faltrapport/1",
-  "fastighet": "Ljungby Plogen 15",
+  "fastighet": "Exempelby Prov 1:1",
   "datum": "2026-10-19",
   "besiktare": "Gustaf Skrealid",
   "medverkande": "Anna Andersson",
@@ -28,7 +28,7 @@ A. webbappen i den här mappen, B. inläsningen i Winnas Automations Robot (`tex
 
 **Hur roboten hittar cellen** (radnummer flyttar mellan mallversioner, därför ankare och inte adresser):
 1. sektionsraden = första raden i fliken där kolumn B (trimmad, casefold) == `sektion` (casefold);
-2. målraden = första raden EFTER sektionsraden där kolumn A, B eller C (trimmad, casefold) börjar med `etikett` (casefold);
+2. målraden = första raden EFTER sektionsraden där kolumn A, B eller C (trimmad, casefold) är exakt `etikett`; finns ingen, den första som börjar med den;
 3. plus `forskjut` (standard 0); cellen = `kol` + rad.
 Hittas sektionen eller etiketten inte, eller är målcellen en formel eller skyddad, skrivs ingenting för den
 posten och roboten flaggar den med vad den såg (FL.bedomning). Den gissar aldrig.
@@ -40,7 +40,6 @@ Inmatningscellen står till vänster om sin etikett: etikett i C → B, i E → 
 |---|---|---|---|---|
 | Besiktning | omfattning | Besiktning | "Besiktning enbart utvändigt" / "Besiktning invändigt & utvändigt" | B=1 på vald rad, null på den andra (radio) |
 | | urval | Besiktning | "Besiktning av lokaler och bostäder" / "Besiktning av lokaler" / "Besiktning av bostäder" | B, radio över tre rader |
-| | medverkande_roll | Besiktning | "Representant för uppdragsgivaren" / "Representant för fastighetsägaren" / "Representant för UG och FÄ" | B, radio (namnet själv går i `medverkande`, inte i en cell) |
 | | fysisk | Besiktning | "Fysisk besiktning har skett" | B=1 alltid när rapporten exporteras |
 | Omgivning | omradestyp | Omgivning | "Industriområde" | B = text (namn på industriområdet, eller "ett"); D=1 CBD, F=1 bostadsområde, H=1 handelsområde (radio: B-text ELLER en av D/F/H) |
 | | lage_ort | Omgivning | "Centrala" | B/D/F/H = 1 för centrala/utkant/utanför/landsbygd (radio) |
@@ -56,8 +55,8 @@ Inmatningscellen står till vänster om sin etikett: etikett i C → B, i E → 
 | | tomt_fritext | Tomt | "Skriv in ev. fritext här" | B = text |
 | Byggnad | antal_byggnader | Byggnadsbeskrivning | "ange antal byggnader" | B = heltal |
 | | plan | Byggnadsbeskrivning | "plan ovan mark" | B = antal plan (heltal), D=1 källare, F=1 vind |
-| | byggar | Byggnadsbeskrivning | "Huvudsakligt byggår" | B=1 och D = år (heltal) |
-| | tillbyggnad | Byggnadsbeskrivning | "Tillbyggnadsår" | B=1 och D = år; eller raden "Byggts till i omgångar" B=1 utan år |
+| | byggar | Byggnadsbeskrivning | "Huvudsakligt byggår" | B=1 (årtalet D är en formel mot Taxering) |
+| | tillbyggnad | Byggnadsbeskrivning | "Tillbyggnadsår" | B=1 (år ur Taxering); eller raden "Byggts till i omgångar" B=1 |
 | | lokaltyper | Byggnadsbeskrivning | "Bostäder" (rad 1) och "Lager" (rad 2) | rad 1: B bostäder, D butiker, F industri, H kontor; rad 2: B lager, D övrigt (flerval) |
 | | uthyrning | Byggnadsbeskrivning | "Uthyrning en hyresgäst" | B=1 en extern hyresgäst / D=1 flera; raden "Egen verksamhet" B=1 (flerval) |
 | | byggnad_fritext | Byggnadsbeskrivning | "Skriv in ev. fritext här" | B = text |
@@ -121,3 +120,5 @@ Inmatningscellen står till vänster om sin etikett: etikett i C → B, i E → 
 - Test `tester/test_faltrapport.py`: en fixtur-JSON + mallen som testerna redan använder; kontrollera att Stomme → C på
   "Stomme"-raden, att radio ger 1 + tom, att en okänd etikett blir fel och inte skrivs, och att en formelcell inte skrivs.
 - Följ robotens CLAUDE.md (skriv aldrig .xlsm med openpyxl, mallen skrivs aldrig). Kör hela testsviten; den ska vara grön.
+
+Rättat 2026-10-19 efter bygget: B36–B38 och D105/D106 är formler (mot Basinfo E6–E8 respektive Taxering), så fälten medverkande_roll och byggårens årtal utgick. Medverkande skrivs i Basinfo för hand.

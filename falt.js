@@ -28,11 +28,6 @@ export const FALT = [
     val('l', 'Lokaler', 'B', { etikett: 'Besiktning av lokaler' }),
     val('b', 'Bostäder', 'B', { etikett: 'Besiktning av bostäder' }),
   ], { radio: true }),
-  falt('medverkande_roll', 'Besiktning', BESIKTNING, '', 'Medverkande representerar', [
-    val('ug', 'Uppdragsgivaren', 'B', { etikett: 'Representant för uppdragsgivaren' }),
-    val('fa', 'Fastighetsägaren', 'B', { etikett: 'Representant för fastighetsägaren' }),
-    val('bada', 'UG och FÄ', 'B', { etikett: 'Representant för UG och FÄ' }),
-  ], { radio: true }),
   falt('fysisk', 'Besiktning', BESIKTNING, 'Fysisk besiktning har skett', 'Fysisk besiktning har skett', [val('v', 'Fysisk besiktning har skett', 'B')], { alltid: true }),
 
   falt('omradestyp', 'Omgivning', OMG, 'Industriområde', 'Områdestyp', [
@@ -59,16 +54,17 @@ export const FALT = [
 
   falt('antal_byggnader', 'Byggnad', BYGG, 'ange antal byggnader', 'Antal byggnader', [tal('n', 'Antal', 'B')]),
   falt('plan', 'Byggnad', BYGG, 'plan ovan mark', 'Plan', [tal('n', 'Antal plan ovan mark', 'B'), val('kallare', 'Källare', 'D'), val('vind', 'Vind', 'F')]),
-  falt('byggar', 'Byggnad', BYGG, 'Huvudsakligt byggår', 'Byggår', [auto('b', 'B', ['ar']), tal('ar', 'Byggår', 'D')]),
+  // Årtalen (D105/D106) är formler mot Taxering; i fält väljs bara om de ska med i texten.
+  falt('byggar', 'Byggnad', BYGG, 'Huvudsakligt byggår', 'Byggår', [val('med', 'Ta med byggår (ur taxeringen)', 'B')]),
   falt('tillbyggnad', 'Byggnad', BYGG, 'Tillbyggnadsår', 'Tillbyggnad', [
-    auto('b', 'B', ['ar']), tal('ar', 'Tillbyggnadsår', 'D'), val('omg', 'Byggts till i omgångar', 'B', { etikett: 'Byggts till i omgångar' }),
+    val('ar', 'Tillbyggd, ta med år (ur taxeringen)', 'B'), val('omg', 'Byggts till i omgångar', 'B', { etikett: 'Byggts till i omgångar' }),
   ]),
   falt('lokaltyper', 'Byggnad', BYGG, 'Bostäder', 'Lokaltyper', [
     val('bost', 'Bostäder', 'B'), val('butik', 'Butiker', 'D'), val('ind', 'Industri', 'F'), val('kontor', 'Kontor', 'H'),
     val('lager', 'Lager', 'B', { etikett: 'Lager' }), val('ovr', 'Övrigt', 'D', { etikett: 'Lager' }),
   ]),
   falt('uthyrning', 'Byggnad', BYGG, 'Uthyrning en hyresgäst', 'Uthyrning', [
-    val('en', 'En extern hyresgäst', 'B'), val('flera', 'Flera hyresgäster', 'D'), val('egen', 'Egen verksamhet', 'B', { etikett: 'Egen verksamhet' }),
+    val('en', 'En extern hyresgäst', 'B'), val('flera', 'Flera hyresgäster', 'D'), val('egen', 'Egen verksamhet', 'B', { sektion: 'Fastighetstyp', etikett: 'Egen verksamhet' }) // B114 är =B73,
   ]),
   fritext('byggnad_fritext', 'Byggnad', BYGG),
 

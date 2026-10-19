@@ -6,13 +6,13 @@ export function kor() {
   const fel = [];
   const kolla = (ok, text) => { if (!ok) fel.push(text); console.assert(ok, text); };
   const b = {
-    fastighet: 'Ljungby Plogen 15', datum: '2026-10-19', besiktare: 'Gustaf Skrealid', medverkande: 'Anna Andersson',
+    fastighet: 'Exempelby Prov 1:1', datum: '2026-10-19', besiktare: 'Gustaf Skrealid', medverkande: 'Anna Andersson',
     svar: {
       stomme: { val: ['Betong'] }, fasad: { val: ['Tegel', 'Puts'], annat: '' }, yttertak: { val: ['Plåt', 'Papp', 'Sedum'] },
       portar: { val: ['Ja'], annat: '4' },
       skick_yttre: { n: true }, standard_lgh: { h: true },
       reparation: { noterat: true, belopp: '250 000', ar: '2028' },
-      byggar: { ar: '1974' }, omradestyp: { cbd: true }, service: { ort: 'Ljungby', km: '2,5' },
+      byggar: { med: true }, omradestyp: { cbd: true }, service: { ort: 'Exempelby', km: '2,5' },
     },
     anteckningar: { hyror: 'x' },
   };
@@ -36,7 +36,7 @@ export function kor() {
   kolla(rp[0].etikett === 'Reperationsbehov', 'Reperationsbehov stavas som mallen');
   kolla(rp.find((c) => c.kol === 'D').varde === 250000, 'belopp med mellanslag blir tal');
   kolla(rp.find((c) => c.kol === 'F').varde === 2028 && rp.find((c) => c.kol === 'H').varde === null, 'år/kalkylstart');
-  kolla(hitta('byggar', 'B')?.varde === 1 && hitta('byggar', 'D')?.varde === 1974, 'byggår: B=1 och D=år');
+  kolla(hitta('byggar', 'B')?.varde === 1 && !hitta('byggar', 'D'), 'byggår: bara B=1, årtalet är mallens formel');
   kolla(hitta('omradestyp', 'D')?.varde === 1 && hitta('omradestyp', 'B').varde === null, 'områdestyp radio');
   kolla(hitta('service', 'D')?.varde === 2.5, 'km med decimalkomma blir tal');
   kolla(hitta('fysisk', 'B')?.varde === 1, 'fysisk alltid 1');

@@ -33,7 +33,7 @@ export function byggCeller(svar = {}) {
       continue;
     }
     for (const d of f.delar) {
-      const c = { falt: f.id, sektion: f.sektion, etikett: d.etikett ?? f.etikett };
+      const c = { falt: f.id, sektion: d.sektion ?? f.sektion, etikett: d.etikett ?? f.etikett };
       const fo = d.forskjut ?? f.forskjut;
       if (fo) c.forskjut = fo;
       celler.push({ ...c, kol: d.kol, varde: delVarde(d, s) });

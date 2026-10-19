@@ -101,7 +101,7 @@ function grund(m) {
     }
     l.append(r); i.addEventListener('change', () => minns('besiktare', cur.besiktare));
   });
-  d.append(bes, inmatning('Medverkande (namn)', cur, 'medverkande'));
+  d.append(bes, inmatning('Medverkande (namn och roll, t.ex. "Anna Andersson, fastighetsägaren")', cur, 'medverkande'));
   m.append(w);
 }
 
