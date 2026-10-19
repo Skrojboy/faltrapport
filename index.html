@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fältrapport">
+<title>Fältrapport</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="ikon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="ikon-192.png">
+<style>
+:root{--bg:#f4f5f3;--yta:#fff;--text:#1b1f1d;--dim:#5d6661;--linje:#cfd5d1;--accent:#1f6b52;--accent-text:#fff;--varning:#b3261e}
+@media (prefers-color-scheme:dark){:root{--bg:#121513;--yta:#1d221f;--text:#eef1ef;--dim:#9ba5a0;--linje:#38403b;--accent:#4fb08c;--accent-text:#06231a;--varning:#ff8a80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.4 -apple-system,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:5;background:var(--yta);border-bottom:1px solid var(--linje);padding:env(safe-area-inset-top) max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left))}
+.topp{display:flex;align-items:center;gap:8px;min-height:56px}
+.topp h1{flex:1;font-size:19px;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+button,.chip{font:inherit;color:var(--text);background:var(--yta);border:1.5px solid var(--linje);border-radius:12px;min-height:46px;padding:8px 16px;cursor:pointer;touch-action:manipulation}
+button.prim,.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-text);font-weight:600}
+button.fara{color:var(--varning)}
+nav{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;-webkit-overflow-scrolling:touch}
+nav button{flex:none;position:relative}
+nav button[aria-selected=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+nav button.fylld::after{content:"";position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+main{max-width:900px;margin:0 auto;padding:12px max(12px,env(safe-area-inset-left)) 80px}
+.falt{background:var(--yta);border:1px solid var(--linje);border-radius:14px;padding:12px 14px;margin:0 0 12px}
+.falt h3{font-size:15px;color:var(--dim);margin:0 0 8px;font-weight:600}
+.delar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.delar label{display:flex;flex-direction:column;font-size:13px;color:var(--dim);flex:1 1 220px}
+input,textarea{font:inherit;color:var(--text);background:var(--bg);border:1.5px solid var(--linje);border-radius:10px;padding:10px 12px;min-height:46px;width:100%}
+textarea{min-height:140px;resize:vertical}
+textarea.lang{min-height:80px}
+.rad{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.lista{list-style:none;padding:0;margin:0}
+.lista li{display:flex;gap:8px;margin-bottom:10px}
+.lista .oppna{flex:1;text-align:left}
+.lista small{display:block;color:var(--dim)}
+.tom{color:var(--dim)}
+#utskrift{display:none}
+@media print{
+  header,main,#hem{display:none!important}
+  #utskrift{display:block;font:11pt/1.35 sans-serif;color:#000}
+  #utskrift h1{font-size:16pt} #utskrift h2{font-size:12pt;border-bottom:1px solid #000;margin:14pt 0 4pt}
+  #utskrift p{margin:2pt 0}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="topp"><button id="tillbaka" hidden>‹ Alla</button><h1 id="titel">Fältrapport</h1>
+    <button id="skrivut" hidden>Skriv ut / PDF</button><button id="exportera" class="prim" hidden>Exportera</button></div>
+  <nav id="flikar" role="tablist" hidden></nav>
+</header>
+<main id="hem" hidden></main>
+<main id="red" hidden></main>
+<div id="utskrift"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

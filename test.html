@@ -1,0 +1,7 @@
+<!doctype html><html lang="sv"><meta charset="utf-8"><title>Självtest</title>
+<pre id="u">Kör…</pre>
+<script type="module">
+import { kor } from './selftest.js';
+const fel = kor();
+document.getElementById('u').textContent = fel.length ? 'FEL:\n' + fel.join('\n') : 'Alla kontroller gröna';
+</script></html>
