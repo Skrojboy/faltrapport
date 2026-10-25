@@ -18,6 +18,10 @@ export const ANTECKNINGAR = [
   { id: 'ovrigt', namn: 'Övrigt' },
 ];
 
+// Lokaltyper för hyresrader (mallens koder i Hyror!B). Ö3 = övrigt per styck, t.ex. container/paketboxar.
+export const LOKALTYPER = [['Bo', 'Bostad'], ['Ko', 'Kontor'], ['Bu', 'Butik'], ['Re', 'Restaurang'], ['La', 'Lager'], ['In', 'Industri'], ['Eu', 'Utbildning/övrigt lokal'], ['Ga', 'Garage'], ['Pa', 'Parkering'], ['Ö3', 'Övrigt st']];
+export const STATUS = [['U', 'Uthyrd'], ['E', 'Egen'], ['V', 'Vakant']];
+
 export const FALT = [
   falt('omfattning', 'Besiktning', BESIKTNING, '', 'Omfattning', [
     val('ut', 'Enbart utvändigt', 'B', { etikett: 'Besiktning enbart utvändigt' }),

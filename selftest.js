@@ -1,5 +1,5 @@
 // Delas av test.mjs (node) och test.html (webbläsare). Returnerar lista med misslyckade kontroller.
-import { byggExport, teknikText } from './export.js';
+import { byggExport, teknikText, byggHyresrader } from './export.js';
 import { FALT } from './falt.js';
 
 export function kor() {
@@ -42,6 +42,15 @@ export function kor() {
   kolla(hitta('fysisk', 'B')?.varde === 1, 'fysisk alltid 1');
   kolla(e.anteckningar.hyror === 'x' && e.anteckningar.ovrigt === '' && e.svar === b.svar, 'anteckningar och svar');
   kolla(teknikText({ alt: ['A', 'B'] }, { val: ['A'], annat: 'sten' }) === 'A och sten', 'annat läggs till');
+  const hr = byggHyresrader([
+    { hyresgast: ' Schenker ', lokaltyp: 'Ö3', status: 'U', mangd: '1', hyra: '30 000', notering: 'utlämning' },
+    { hyresgast: '', lokaltyp: 'Bo', status: 'V', mangd: '60,5', hyra: '1 200,5' },
+    { hyresgast: '', lokaltyp: 'Ko', status: 'U', mangd: '100', hyra: '' },
+  ]);
+  kolla(hr.length === 2, 'rad utan hyresgäst och hyra exporteras inte');
+  kolla(hr[0].hyresgast === 'Schenker' && hr[0].hyra_kr === 30000 && hr[0].mangd === 1 && hr[0].notering === 'utlämning', 'hyresrad med tal');
+  kolla(hr[1].mangd === 60.5 && hr[1].hyra_kr === 1200.5 && hr[1].status === 'V' && hr[1].lokaltyp === 'Bo', 'decimalkomma');
+  kolla(Array.isArray(byggExport({ svar: {} }).hyresrader) && byggExport({ svar: {} }).hyresrader.length === 0, 'hyresrader utan rader = tom lista');
   const tom = byggExport({ svar: {} });
   kolla(tom.celler.length === 1, 'tomt svar ger bara fysisk');
   kolla(new Set(FALT.map((f) => f.id)).size === FALT.length, 'unika fält-id');

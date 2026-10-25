@@ -1,5 +1,5 @@
-import { AVSNITT, FALT, ANTECKNINGAR } from './falt.js';
-import { besvarad, byggExport, filnamn, sammanfatta, harVarde } from './export.js';
+import { AVSNITT, FALT, ANTECKNINGAR, LOKALTYPER, STATUS } from './falt.js';
+import { besvarad, byggExport, byggHyresrader, filnamn, sammanfatta, harVarde } from './export.js';
 
 const $ = (id) => document.getElementById(id);
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
@@ -51,7 +51,7 @@ function visaRed() {
   $('hem').hidden = true; $('red').hidden = false;
   for (const id of ['tillbaka', 'skrivut', 'exportera', 'flikar']) $(id).hidden = false;
   const nav = $('flikar'); nav.replaceChildren();
-  for (const n of ['Grunduppgifter', ...AVSNITT, 'Anteckningar']) {
+  for (const n of ['Grunduppgifter', ...AVSNITT, 'Hyror', 'Anteckningar']) {
     const b = h('button', null, n); b.dataset.flik = n; b.setAttribute('role', 'tab');
     b.onclick = () => { flik = n; visaFlik(); }; nav.append(b);
   }
@@ -63,13 +63,14 @@ function markeraFlikar() {
   for (const b of $('flikar').children) {
     const n = b.dataset.flik;
     b.setAttribute('aria-selected', n === flik);
-    b.classList.toggle('fylld', n === 'Anteckningar' ? ANTECKNINGAR.some((a) => harVarde(cur.anteckningar[a.id])) : FALT.some((f) => f.avsnitt === n && besvarad(f, cur.svar[f.id])));
+    b.classList.toggle('fylld', n === 'Hyror' ? !!cur.hyresrader?.length : n === 'Anteckningar' ? ANTECKNINGAR.some((a) => harVarde(cur.anteckningar[a.id])) : FALT.some((f) => f.avsnitt === n && besvarad(f, cur.svar[f.id])));
   }
 }
 
 function visaFlik() {
   const m = $('red'); m.replaceChildren();
   if (flik === 'Grunduppgifter') grund(m);
+  else if (flik === 'Hyror') hyror(m);
   else if (flik === 'Anteckningar') for (const a of ANTECKNINGAR) m.append(fritt(a.namn, cur.anteckningar, a.id));
   else for (const f of FALT.filter((f) => f.avsnitt === flik && !f.alltid)) m.append(ritaFalt(f));
   markeraFlikar(); scrollTo(0, 0);
@@ -87,6 +88,29 @@ function inmatning(namn, obj, nyckel, typ = 'text', extra) {
   const l = h('label', null, namn), i = h('input'); i.type = typ; i.value = obj[nyckel] || '';
   i.oninput = () => { obj[nyckel] = i.value; sparaSen(); markeraFlikar(); };
   l.append(i); extra?.(i, l); return l;
+}
+
+// --- Hyror: en ruta per hyresgäst, sparas efter varje input ---
+function hyror(m) {
+  const rader = (cur.hyresrader ??= []);
+  const lista = h('div'), ny = h('button', 'prim', '+ Lägg till rad');
+  ny.style.width = '100%';
+  const rita = () => { lista.replaceChildren(...rader.map(hyresrad)); markeraFlikar(); };
+  const hyresrad = (r) => {
+    const el = h('section', 'falt'), d = h('div', 'delar'); el.append(d);
+    const falt = (namn, nyckel, tal) => { const l = h('label', null, namn), i = h('input'); i.value = r[nyckel] || ''; if (tal) i.inputMode = 'decimal'; i.oninput = () => { r[nyckel] = i.value; sparaSen(); markeraFlikar(); }; l.append(i); return l; };
+    const knappar = (alla, nyckel, ratt) => {
+      const rad = h('div', 'rad'), bs = alla.map(([k, n]) => { const b = chip(ratt ? `${k} ${n}` : n, {}); b.onclick = () => { r[nyckel] = r[nyckel] === k && !ratt ? null : k; bs.forEach((x, j) => x.setAttribute('aria-pressed', r[nyckel] === alla[j][0])); spara(); }; b.setAttribute('aria-pressed', r[nyckel] === k); return b; });
+      rad.append(...bs); rad.style.flexBasis = '100%'; return rad;
+    };
+    r.status ??= 'U';
+    const mangd = falt('Mängd (m², eller antal st för Ga/Pa/Ö3)', 'mangd', true);
+    d.append(falt('Hyresgäst', 'hyresgast'), knappar(LOKALTYPER, 'lokaltyp', true), knappar(STATUS, 'status', false), mangd, falt('Hyra (kr per år)', 'hyra', true), falt('Notering', 'notering'));
+    const bort = h('button', 'fara', 'Ta bort rad'); bort.onclick = () => { rader.splice(rader.indexOf(r), 1); spara(); rita(); };
+    d.append(bort); return el;
+  };
+  ny.onclick = () => { rader.push({ status: 'U' }); spara(); rita(); };
+  rita(); m.append(lista, ny);
 }
 
 function grund(m) {
@@ -174,6 +198,14 @@ function skrivUt() {
     if (!rader.length) continue;
     u.append(h('h2', null, a));
     for (const f of rader) { const p = h('p'); p.append(Object.assign(h('b'), { textContent: f.namn + ': ' }), sammanfatta(f, cur.svar[f.id])); u.append(p); }
+  }
+  const hr = byggHyresrader(cur.hyresrader);
+  if (hr.length) {
+    u.append(h('h2', null, 'Hyror'));
+    const t = h('table'), rad = (celler, tag = 'td') => { const tr = h('tr'); tr.append(...celler.map((c) => h(tag, null, c ?? ''))); t.append(tr); };
+    rad(['Hyresgäst', 'Typ', 'Status', 'Mängd', 'Hyra kr/år', 'Notering'], 'th');
+    for (const r of hr) rad([r.hyresgast, r.lokaltyp, r.status, r.mangd, r.hyra_kr, r.notering]);
+    u.append(t);
   }
   for (const a of ANTECKNINGAR) if (harVarde(cur.anteckningar[a.id])) { u.append(h('h2', null, a.namn)); const p = h('p', null, cur.anteckningar[a.id]); p.style.whiteSpace = 'pre-wrap'; u.append(p); }
   print();

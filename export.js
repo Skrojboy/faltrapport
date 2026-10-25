@@ -42,6 +42,13 @@ export function byggCeller(svar = {}) {
   return celler;
 }
 
+const talEllerNull = (t) => { const n = Number(String(t ?? '').replace(/\s/g, '').replace(',', '.')); return String(t ?? '').trim() !== '' && !isNaN(n) ? n : null; };
+
+// Rader helt utan hyresgäst och hyra exporteras inte.
+export const byggHyresrader = (rader = []) => rader
+  .filter((r) => (r.hyresgast || '').trim() || talEllerNull(r.hyra) !== null)
+  .map((r) => ({ hyresgast: (r.hyresgast || '').trim(), lokaltyp: r.lokaltyp || null, status: r.status || 'U', mangd: talEllerNull(r.mangd), hyra_kr: talEllerNull(r.hyra), notering: (r.notering || '').trim() || null }));
+
 export function byggExport(b) {
   const a = b.anteckningar || {};
   return {
@@ -51,6 +58,7 @@ export function byggExport(b) {
     besiktare: b.besiktare || '',
     medverkande: b.medverkande || '',
     celler: byggCeller(b.svar),
+    hyresrader: byggHyresrader(b.hyresrader),
     anteckningar: Object.fromEntries(ANTECKNINGAR.map((n) => [n.id, a[n.id] || ''])),
     svar: b.svar || {},
   };
