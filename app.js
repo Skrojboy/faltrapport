@@ -115,7 +115,7 @@ function hyror(m) {
 
 function grund(m) {
   const w = h('section', 'falt'); const d = h('div', 'delar'); w.append(d);
-  d.append(inmatning('Fastighet', cur, 'fastighet'), inmatning('Datum', cur, 'datum', 'date'));
+  d.append(inmatning('Fastighet (hela beteckningen, t.ex. Falkenberg Esered 5.2)', cur, 'fastighet'), inmatning('Datum', cur, 'datum', 'date'));
   const bes = inmatning('Besiktare', cur, 'besiktare', 'text', (i, l) => {
     const r = h('div', 'rad'); r.style.marginTop = '6px';
     for (const n of ['Gustaf Skrealid', 'Per ']) {
@@ -184,6 +184,8 @@ function ritaFalt(f) {
 // --- Export och utskrift ---
 function exportera() {
   spara();
+  // Roboten hittar filen på beteckningen i namnet; utan siffra (t.ex. "Esered" i stället för "Esered 5.2") missar den.
+  if (!/\d/.test(cur.fastighet || '') && !confirm('Fastighetsnamnet saknar siffra (beteckningen, t.ex. "Esered 5.2"). Roboten kan då missa filen. Exportera ändå?')) return;
   const namn = filnamn(cur), fil = new File([JSON.stringify(byggExport(cur), null, 2)], namn, { type: 'application/json' });
   const ladda = () => { const a = h('a'); a.href = URL.createObjectURL(fil); a.download = namn; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 6e4); };
   if (navigator.canShare?.({ files: [fil] })) navigator.share({ files: [fil] }).catch((e) => e.name !== 'AbortError' && ladda());
