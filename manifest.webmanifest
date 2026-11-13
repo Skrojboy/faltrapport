@@ -7,6 +7,7 @@
   "display": "standalone",
   "background_color": "#1f6b52",
   "theme_color": "#1f6b52",
+  "file_handlers": [{"action": "./index.html", "accept": {"application/json": [".json"]}}],
   "icons": [
     {"src": "ikon-192.png", "sizes": "192x192", "type": "image/png"},
     {"src": "ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},

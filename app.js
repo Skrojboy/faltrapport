@@ -22,6 +22,19 @@ const sparaSen = () => { clearTimeout(timer); timer = setTimeout(spara, 300); };
 addEventListener('pagehide', spara);
 document.addEventListener('visibilitychange', () => document.hidden && spara());
 
+// Öppna en exporterad .json (från knappen eller Finder); svar + hyresrader räcker för att återskapa utkastet.
+async function oppnaFil(f) { oppnaText(await f.text()); }
+function oppnaText(text) {
+    try {
+      const j = JSON.parse(text);
+      if (j.format !== 'winna-faltrapport/1') throw new Error('inte en fältrapportfil');
+      const s = (v) => v == null ? '' : String(v);
+      cur = { id: `fil:${s(j.fastighet)}:${s(j.datum)}`, fastighet: s(j.fastighet), datum: s(j.datum), besiktare: s(j.besiktare), medverkande: s(j.medverkande), svar: j.svar || {}, anteckningar: j.anteckningar || {},
+        hyresrader: (j.hyresrader || []).map((r) => ({ hyresgast: s(r.hyresgast), lokaltyp: r.lokaltyp || '', status: r.status || 'U', mangd: s(r.mangd), hyra: s(r.hyra_kr), notering: s(r.notering) })) };
+      flik = 'Grunduppgifter'; spara(); visaRed();
+    } catch (e) { alert(`Kunde inte öppna filen: ${e.message}`); }
+}
+
 // --- Startsida ---
 async function visaHem() {
   cur = null;
@@ -30,7 +43,10 @@ async function visaHem() {
   $('red').hidden = true; const hem = $('hem'); hem.hidden = false; hem.replaceChildren();
   const ny = h('button', 'prim', '+ Ny besiktning'); ny.style.width = '100%'; ny.style.marginBottom = '14px';
   ny.onclick = () => { cur = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), fastighet: '', datum: idag(), besiktare: minns('besiktare') || '', medverkande: '', svar: {}, anteckningar: {} }; flik = 'Grunduppgifter'; spara(); visaRed(); };
-  hem.append(ny);
+  const fil = h('input'); fil.type = 'file'; fil.accept = '.json,application/json'; fil.hidden = true;
+  fil.onchange = () => oppnaFil(fil.files[0]);
+  const oppna = h('button', null, 'Öppna fil…'); oppna.style.width = '100%'; oppna.style.marginBottom = '14px'; oppna.onclick = () => fil.click();
+  hem.append(ny, oppna, fil);
   const lista = (await alla()).sort((a, b) => b.andrad - a.andrad);
   if (!lista.length) hem.append(h('p', 'tom', 'Inga besiktningar än. Allt sparas på den här enheten.'));
   const ul = h('ul', 'lista');
@@ -217,4 +233,9 @@ $('tillbaka').onclick = () => { spara(); visaHem(); };
 $('exportera').onclick = exportera;
 $('skrivut').onclick = skrivUt;
 visaHem();
+// Finder: "Öppna med Fältrapport" (bara i Chrome/Edge-installerad app).
+// robot faltrapport --visa: hela filen i #fil=<base64url>, ingen server behövs.
+const fr = location.hash.match(/^#fil=(.+)/);
+if (fr) { history.replaceState(null, '', location.pathname); oppnaText(new TextDecoder().decode(Uint8Array.from(atob(fr[1].replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0)))); }
+window.launchQueue?.setConsumer(async (p) => { const h = p.files?.[0]; if (h) oppnaFil(await h.getFile()); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
